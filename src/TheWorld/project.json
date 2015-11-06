@@ -7,10 +7,14 @@
     "Microsoft.AspNet.IISPlatformHandler": "1.0.0-beta8",
     "Microsoft.AspNet.Server.Kestrel": "1.0.0-beta8",
     "Microsoft.AspNet.StaticFiles": "1.0.0-beta8",
-    "Microsoft.AspNet.Mvc.TagHelpers": "6.0.0-beta8"
+    "Microsoft.AspNet.Mvc.TagHelpers": "6.0.0-beta8",
+    "EntityFramework.Core": "7.0.0-beta8",
+    "EntityFramework.SqlServer": "7.0.0-beta8",
+    "EntityFramework.Commands": "7.0.0-beta8"
   },
 
   "commands": {
+    "ef": "EntityFramework.Commands",
     "web": "Microsoft.AspNet.Server.Kestrel"
   },
 
