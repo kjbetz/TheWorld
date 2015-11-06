@@ -9,6 +9,7 @@ using TheWorld.Services;
 using Microsoft.Framework.Configuration;
 using Microsoft.Dnx.Runtime;
 using TheWorld.Models;
+using Microsoft.Framework.Logging;
 
 namespace TheWorld
 {
@@ -30,15 +31,21 @@ namespace TheWorld
         {
             services.AddMvc();
 
+            services.AddLogging();
+
             services.AddEntityFramework()
                 .AddSqlServer()
                 .AddDbContext<WorldContext>();
 
             services.AddScoped<IMailService, DebugMailService>();
+            services.AddTransient<WorldContextSeedData>();
+            services.AddScoped<IWorldRepository, WorldRepository>();
         }
 
-        public void Configure(IApplicationBuilder app)
+        public void Configure(IApplicationBuilder app, WorldContextSeedData seeder, ILoggerFactory logger)
         {
+            logger.AddDebug(LogLevel.Warning);
+
             app.UseStaticFiles();
 
             app.UseMvc(config =>
@@ -49,6 +56,8 @@ namespace TheWorld
                     defaults: new { controller = "App", action = "Index" }
                     );
              });
+
+            seeder.EnsureSeedData();
         }
     }
 }
