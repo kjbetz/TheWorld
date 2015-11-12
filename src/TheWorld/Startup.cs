@@ -16,6 +16,9 @@ using TheWorld.ViewModels;
 using Microsoft.AspNet.Diagnostics;
 using Microsoft.AspNet.Hosting;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Mvc;
+using Microsoft.AspNet.Authentication.Cookies;
+using System.Net;
 
 namespace TheWorld
 {
@@ -36,16 +39,33 @@ namespace TheWorld
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc()
-                .AddJsonOptions(opt =>
-                {
-                    opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                });
+            .AddJsonOptions(opt =>
+            {
+                opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            });
 
             services.AddIdentity<WorldUser, IdentityRole>(config =>
             {
                 config.User.RequireUniqueEmail = true;
                 config.Password.RequiredLength = 8;
                 config.Cookies.ApplicationCookie.LoginPath = "/Auth/Login";
+                config.Cookies.ApplicationCookie.Events = new CookieAuthenticationEvents()
+                {
+                    OnRedirect = ctx =>
+                    {
+                        if (ctx.Request.Path.StartsWithSegments("/api") &&
+                                ctx.Response.StatusCode == (int)HttpStatusCode.OK)
+                        {
+                            ctx.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                        }
+                        else
+                        {
+                            ctx.Response.Redirect(ctx.RedirectUri);
+                        }
+
+                        return Task.FromResult(0);
+                    }
+                };
             })
             .AddEntityFrameworkStores<WorldContext>();
 
@@ -61,10 +81,13 @@ namespace TheWorld
             services.AddScoped<IWorldRepository, WorldRepository>();
         }
 
-        public async void Configure(IApplicationBuilder app, WorldContextSeedData seeder, ILoggerFactory logger)
+        public async void Configure(IApplicationBuilder app, WorldContextSeedData seeder, ILoggerFactory logger, IHostingEnvironment env)
         {
-            app.UseDeveloperExceptionPage();
-
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            
             logger.AddDebug(LogLevel.Warning);
             
             app.UseStaticFiles();
