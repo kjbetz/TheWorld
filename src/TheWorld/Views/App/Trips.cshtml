@@ -2,7 +2,11 @@
 @{
     ViewBag.Title = "Home Page";
 }
-<div class="row">
+@section Scripts {
+    <script src="~/lib/angular/angular.min.js"></script>
+}
+<div class="row" ng-app>
+    <div>{{ 4 + 2 }}</div>
     <div class="col-md-6 col-xs-8">
         <h2>The World</h2>
         <p>This will be a fun website soon!</p>
