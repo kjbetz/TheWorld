@@ -2,12 +2,12 @@
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
+      "launchBrowser": true,
       "environmentVariables": {
         "Key": "Value",
         "ASPNET_ENV": "Development",
         "AppSettings:BingKey": "AlhWHXr6g41zLQ6r20iYfg5Co7k5a0YRWh3ynlP7hOMNWQ4Ck98mVfEF1uIVBW6Q"
-      },
-      "sdkVersion": "dnx-clr-win-x86.1.0.0-beta8"
+      }
     },
     "web": {
       "commandName": "web",

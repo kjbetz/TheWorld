@@ -13,6 +13,9 @@ using Microsoft.Framework.Logging;
 using Newtonsoft.Json.Serialization;
 using AutoMapper;
 using TheWorld.ViewModels;
+using Microsoft.AspNet.Diagnostics;
+using Microsoft.AspNet.Hosting;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace TheWorld
 {
@@ -38,6 +41,14 @@ namespace TheWorld
                     opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 });
 
+            services.AddIdentity<WorldUser, IdentityRole>(config =>
+            {
+                config.User.RequireUniqueEmail = true;
+                config.Password.RequiredLength = 8;
+                config.Cookies.ApplicationCookie.LoginPath = "/Auth/Login";
+            })
+            .AddEntityFrameworkStores<WorldContext>();
+
             services.AddLogging();
 
             services.AddEntityFramework()
@@ -50,11 +61,15 @@ namespace TheWorld
             services.AddScoped<IWorldRepository, WorldRepository>();
         }
 
-        public void Configure(IApplicationBuilder app, WorldContextSeedData seeder, ILoggerFactory logger)
+        public async void Configure(IApplicationBuilder app, WorldContextSeedData seeder, ILoggerFactory logger)
         {
-            logger.AddDebug(LogLevel.Warning);
+            app.UseDeveloperExceptionPage();
 
+            logger.AddDebug(LogLevel.Warning);
+            
             app.UseStaticFiles();
+
+            app.UseIdentity();
 
             Mapper.Initialize(config =>
             {
@@ -71,7 +86,7 @@ namespace TheWorld
                     );
              });
 
-            seeder.EnsureSeedData();
+            await seeder.EnsureSeedDataAsync();
         }
     }
 }
